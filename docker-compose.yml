@@ -1,0 +1,18 @@
+services:
+  autobrr:
+    #image: autobrr:dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autobrr
+    volumes:
+      - ./config:/config
+    ports:
+      - "7474:7474"
+    user: nobody
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
