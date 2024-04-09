@@ -8,7 +8,10 @@
 
 This repo is solely used to create alternative docker images using [https://github.com/GoogleContainerTools/distroless](https://github.com/GoogleContainerTools/distroless). Specifically `static-debian12:nonroot`.
 
-### Why distroless?
+### Why aren't autobrr using distroless by default?
+Many users rely on a shell inside their containers to run scripts. Distroless images won't let you do that.
+
+### Benefits of Distroless
 
 Distroless images are minimal images that do not contain package managers, shells, or any other programs you would expect to find in a standard Linux distribution.
 This minimalism leads to several key benefits:
@@ -18,6 +21,3 @@ This minimalism leads to several key benefits:
 2. **Performance:** Distroless images are significantly smaller than standard images (even Alpine), which can lead to faster startup times, less disk usage, and less network bandwidth consumption when pulling the images.
 
 3. **Maintainability:** With fewer components in the image, there are fewer things that need to be maintained, updated, or patched.
-
-### Why aren't autobrr using distroless by default?
-Many users rely on a shell inside their containers to run scripts. Distroless images won't let you do that.
