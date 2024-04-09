@@ -1,6 +1,6 @@
 # AUTOBRR-DISTROLESS
 
-> [!WARNING]
+> [!NOTE]
 > This is not the official repository for autobrr.
 > Please go to [autobrr/autobrr](https://github.com/autobrr/autobrr) if you want to use the official version.
 
