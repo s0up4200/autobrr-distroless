@@ -1,10 +1,10 @@
 services:
-  autobrr:
+  autobrr-distroless:
     image: ghcr.io/s0up4200/autobrr-distroless:latest
     #build:
     #  context: .
     #  dockerfile: Dockerfile
-    container_name: autobrr
+    container_name: autobrr-distroless
     volumes:
       - ./config:/config
     ports:
