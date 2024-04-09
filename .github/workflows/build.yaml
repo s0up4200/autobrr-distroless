@@ -8,7 +8,7 @@ on:
       - 'v*'
  workflow_dispatch:
     branches: [ main ]
- pull_request:
+ #pull_request:
 
 env:
   REGISTRY: ghcr.io

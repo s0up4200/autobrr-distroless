@@ -1,9 +1,9 @@
 services:
   autobrr:
-    #image: autobrr:dev
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/s0up4200/autobrr-distroless:latest
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile
     container_name: autobrr
     volumes:
       - ./config:/config

@@ -1,12 +1,9 @@
-# Fetcher stage
 FROM alpine:latest AS fetcher
 
 RUN apk add --no-cache wget curl
 
-# Determine the architecture
 ARG ARCH
 
-# Set the download URL based on the architecture
 RUN if [ "$ARCH" = "arm64" ]; then \
         LATEST_RELEASE_URL=$(curl -s https://api.github.com/repos/autobrr/autobrr/releases/latest | grep browser_download_url | grep linux_arm64 | cut -d\" -f4); \
     else \
@@ -22,6 +19,7 @@ FROM gcr.io/distroless/static-debian12:nonroot
 
 LABEL org.opencontainers.image.source = "https://github.com/s0up4200/autobrr-distroless"
 LABEL org.opencontainers.image.licenses = "MIT"
+LABEL org.opencontainers.image.description = "Docker builds using distroless/static-debian12:nonroot"
 LABEL org.opencontainers.image.base.name="gcr.io/distroless/static-debian12:nonroot"
 
 COPY --from=fetcher /usr/local/bin/autobrr /usr/local/bin/
