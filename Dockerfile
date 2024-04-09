@@ -20,9 +20,10 @@ FROM gcr.io/distroless/static-debian12:nonroot
 LABEL org.opencontainers.image.source = "https://github.com/s0up4200/autobrr-distroless"
 LABEL org.opencontainers.image.licenses = "MIT"
 LABEL org.opencontainers.image.description = "Docker builds using distroless/static-debian12:nonroot"
-LABEL org.opencontainers.image.base.name="gcr.io/distroless/static-debian12:nonroot"
+LABEL org.opencontainers.image.base.name = "gcr.io/distroless/static-debian12:nonroot"
 
 COPY --from=fetcher /usr/local/bin/autobrr /usr/local/bin/
+COPY --from=fetcher /usr/local/bin/autobrrctl /usr/local/bin/
 COPY --from=fetcher /config /config
 
 WORKDIR /config
