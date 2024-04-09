@@ -22,7 +22,6 @@ jobs:
   docker:
     name: Build and publish Docker images
     runs-on: ubuntu-latest
-    needs: [test]
     strategy:
       fail-fast: true
       matrix:
