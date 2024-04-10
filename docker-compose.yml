@@ -9,8 +9,8 @@ services:
       - ./config:/config
     ports:
       - "7474:7474"
-    user: nobody
-    read_only: true
+    user: 1000:1000
+    #read_only: true
     security_opt:
       - no-new-privileges:true
     cap_drop:
