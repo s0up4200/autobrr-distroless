@@ -3,9 +3,11 @@
 > [!NOTE]
 > This is not the official repository for autobrr.
 >
-> This image comes without a shell, and external filtering and actions will therefore not work. Use the standard image if you rely on this functionality.
+> This image comes without a shell, and external filtering and actions relying on `exec` will therefore not work with anything but compiled static binaries.
 > 
-> Please go to [autobrr/autobrr](https://github.com/autobrr/autobrr) if you want to use the standard builds.
+> To clarify: BASH and SH shell scripts WILL NOT WORK!
+>
+> Please go to [autobrr/autobrr](https://github.com/autobrr/autobrr) and use the standard images if you rely on this functionality.
 
 ## Distroless
 
