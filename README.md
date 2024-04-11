@@ -2,6 +2,9 @@
 
 > [!NOTE]
 > This is not the official repository for autobrr.
+>
+> This image comes without a shell, and external filtering and actions will therefore not work. Use the standard image if you rely on this functionality.
+> 
 > Please go to [autobrr/autobrr](https://github.com/autobrr/autobrr) if you want to use the standard builds.
 
 ## Distroless
