@@ -15,7 +15,7 @@ This repo is solely used to create alternative docker images using [https://gith
 docker pull ghcr.io/s0up4200/autobrr-distroless:latest
 ```
 
-### Why aren't autobrr using distroless by default?
+### Why isn't autobrr using distroless by default?
 Many users rely on a shell inside their containers to run scripts. Distroless images won't let you do that.
 
 ### Benefits of Distroless
