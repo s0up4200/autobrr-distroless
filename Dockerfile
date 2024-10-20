@@ -1,4 +1,4 @@
-FROM alpine:latest AS fetcher
+FROM golang:1.23-alpine3.20 AS fetcher
 
 RUN apk add --no-cache wget curl
 
