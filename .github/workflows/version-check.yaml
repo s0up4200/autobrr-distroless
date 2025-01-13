@@ -21,7 +21,7 @@ jobs:
         id: autobrr
         run: |
           LATEST_VERSION=$(curl -s https://api.github.com/repos/autobrr/autobrr/releases/latest | jq -r .tag_name)
-          # Remove 'v' prefix for semver comparison
+          echo "Latest autobrr version: ${LATEST_VERSION}"
           LATEST_SEMVER=${LATEST_VERSION#v}
           echo "latest_version=${LATEST_VERSION}" >> $GITHUB_OUTPUT
           echo "latest_semver=${LATEST_SEMVER}" >> $GITHUB_OUTPUT
@@ -30,7 +30,7 @@ jobs:
         id: current
         run: |
           CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          # Remove 'v' prefix for semver comparison
+          echo "Current version: ${CURRENT_VERSION}"
           CURRENT_SEMVER=${CURRENT_VERSION#v}
           echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
           echo "current_semver=${CURRENT_SEMVER}" >> $GITHUB_OUTPUT
@@ -43,16 +43,30 @@ jobs:
       - name: Compare versions
         id: compare
         run: |
-          if ./semver compare ${{ steps.autobrr.outputs.latest_semver }} ${{ steps.current.outputs.current_semver }} | grep -q '>'; then
+          echo "Comparing ${LATEST_SEMVER} with ${CURRENT_SEMVER}"
+          RESULT=$(./semver compare ${{ steps.autobrr.outputs.latest_semver }} ${{ steps.current.outputs.current_semver }})
+          echo "Comparison result: ${RESULT}"
+          if [ "${RESULT}" = ">" ]; then
+            echo "New version available!"
             echo "needs_update=true" >> $GITHUB_OUTPUT
           else
+            echo "No update needed"
             echo "needs_update=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Debug tag creation
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          echo "Would create tag: ${{ steps.autobrr.outputs.latest_version }}"
+          echo "Current tags:"
+          git tag -l
+          echo "needs_update value: ${{ steps.compare.outputs.needs_update }}"
 
       - name: Create new tag if needed
         if: steps.compare.outputs.needs_update == 'true'
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'actions@github.com'
+          echo "Creating tag ${{ steps.autobrr.outputs.latest_version }}"
           git tag ${{ steps.autobrr.outputs.latest_version }}
           git push origin ${{ steps.autobrr.outputs.latest_version }}
