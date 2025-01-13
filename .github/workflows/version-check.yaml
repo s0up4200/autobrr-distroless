@@ -43,10 +43,12 @@ jobs:
       - name: Compare versions
         id: compare
         run: |
-          echo "Comparing ${LATEST_SEMVER} with ${CURRENT_SEMVER}"
+          echo "Comparing versions:"
+          echo "Latest: ${{ steps.autobrr.outputs.latest_semver }}"
+          echo "Current: ${{ steps.current.outputs.current_semver }}"
           RESULT=$(./semver compare ${{ steps.autobrr.outputs.latest_semver }} ${{ steps.current.outputs.current_semver }})
-          echo "Comparison result: ${RESULT}"
-          if [ "${RESULT}" = ">" ]; then
+          echo "Raw comparison result: ${RESULT}"
+          if [ "${RESULT}" = "1" ]; then
             echo "New version available!"
             echo "needs_update=true" >> $GITHUB_OUTPUT
           else
