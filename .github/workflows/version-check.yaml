@@ -1,0 +1,58 @@
+name: Check for new versions
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get latest version from autobrr
+        id: autobrr
+        run: |
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/autobrr/autobrr/releases/latest | jq -r .tag_name)
+          # Remove 'v' prefix for semver comparison
+          LATEST_SEMVER=${LATEST_VERSION#v}
+          echo "latest_version=${LATEST_VERSION}" >> $GITHUB_OUTPUT
+          echo "latest_semver=${LATEST_SEMVER}" >> $GITHUB_OUTPUT
+
+      - name: Get current version
+        id: current
+        run: |
+          CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          # Remove 'v' prefix for semver comparison
+          CURRENT_SEMVER=${CURRENT_VERSION#v}
+          echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+          echo "current_semver=${CURRENT_SEMVER}" >> $GITHUB_OUTPUT
+
+      - name: Install semver
+        run: |
+          curl -O https://raw.githubusercontent.com/fsaintjacques/semver-tool/master/src/semver
+          chmod +x semver
+
+      - name: Compare versions
+        id: compare
+        run: |
+          if ./semver compare ${{ steps.autobrr.outputs.latest_semver }} ${{ steps.current.outputs.current_semver }} | grep -q '>'; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create new tag if needed
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git tag ${{ steps.autobrr.outputs.latest_version }}
+          git push origin ${{ steps.autobrr.outputs.latest_version }}

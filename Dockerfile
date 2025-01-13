@@ -30,4 +30,4 @@ WORKDIR /config
 
 EXPOSE 7441
 
-ENTRYPOINT ["autobrr", "run", "--config", "/config/"]
+ENTRYPOINT ["autobrr", "--config", "/config/"]
