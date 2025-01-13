@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - "v*"
-  repository_dispatch:
-    types: [new_version_tagged]
   workflow_dispatch:
   #pull_request:
 
