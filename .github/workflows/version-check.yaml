@@ -66,9 +66,26 @@ jobs:
 
       - name: Create new tag if needed
         if: steps.compare.outputs.needs_update == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'actions@github.com'
           echo "Creating tag ${{ steps.autobrr.outputs.latest_version }}"
           git tag ${{ steps.autobrr.outputs.latest_version }}
-          git push origin ${{ steps.autobrr.outputs.latest_version }}
+          git push origin refs/tags/${{ steps.autobrr.outputs.latest_version }}
+
+          echo "Waiting for build workflow to start..."
+          sleep 10
+          run_id=$(gh api repos/${{ github.repository }}/actions/runs \
+            --jq '.workflow_runs[] | select(.name=="build") | .id' \
+            --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}")
+          if [ -n "$run_id" ]; then
+            echo "Build workflow started with run ID: $run_id"
+          else
+            echo "Warning: Build workflow did not start automatically"
+            gh api repos/${{ github.repository }}/dispatches \
+              -X POST \
+              -H "Accept: application/vnd.github.v3+json" \
+              -f event_type='new_version_tagged'
+          fi
