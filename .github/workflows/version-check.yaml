@@ -21,7 +21,19 @@ jobs:
       - name: Get latest version from autobrr
         id: autobrr
         run: |
-          LATEST_VERSION=$(curl -s https://api.github.com/repos/autobrr/autobrr/releases/latest | jq -r .tag_name)
+          LATEST_VERSION=$(curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/autobrr/autobrr/releases/latest | jq -r .tag_name)
+          if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" == "null" ]; then
+            echo "Failed to fetch upstream tag from autobrr/autobrr releases/latest endpoint."
+            echo "Attempting to fetch latest tag from /repos/autobrr/autobrr/tags endpoint..."
+            LATEST_VERSION=$(curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/autobrr/autobrr/tags | jq -r '.[0].name')
+            if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" == "null" ]; then
+               echo "Failed to fetch upstream tag from autobrr/autobrr /tags endpoint as well."
+               exit 1 # Exit if no version can be found
+            else
+              echo "Successfully fetched latest tag from /tags endpoint: $LATEST_VERSION"
+            fi
+          fi
+          echo "Latest upstream version identified: $LATEST_VERSION"
           echo "latest_version=${LATEST_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Get current version
@@ -38,10 +50,28 @@ jobs:
       - name: Compare versions
         id: compare
         run: |
-          if [ "${RESULT}" = "1" ]; then
+          LATEST_UPSTREAM="${{ steps.autobrr.outputs.latest_version }}"
+          CURRENT_LOCAL="${{ steps.current.outputs.current_version }}"
+          
+          echo "Latest upstream version: $LATEST_UPSTREAM"
+          echo "Current local version: $CURRENT_LOCAL"
+
+          # The fsaintjacques/semver-tool handles 'v' prefix correctly.
+          
+          # semver compare <version1> <version2>
+          # Returns 1 if version1 > version2
+          # Returns 0 if version1 == version2
+          # Returns -1 if version1 < version2
+          COMPARISON_RESULT=$(./semver compare "$LATEST_UPSTREAM" "$CURRENT_LOCAL")
+          
+          echo "Comparison result: $COMPARISON_RESULT (1 means new version is available from upstream)"
+          
+          if [ "$COMPARISON_RESULT" = "1" ]; then
             echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "Newer version $LATEST_UPSTREAM found (current local is $CURRENT_LOCAL)."
           else
             echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "Current local version $CURRENT_LOCAL is up-to-date or newer than upstream $LATEST_UPSTREAM."
           fi
 
       - name: Create and push tag
