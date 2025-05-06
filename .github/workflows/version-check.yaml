@@ -1,4 +1,4 @@
-name: Check for new versions
+name: Sync Upstream Release
 
 on:
   schedule:
