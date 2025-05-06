@@ -28,7 +28,7 @@ jobs:
             LATEST_VERSION=$(curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/autobrr/autobrr/tags | jq -r '.[0].name')
             if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" == "null" ]; then
                echo "Failed to fetch upstream tag from autobrr/autobrr /tags endpoint as well."
-               exit 1 # Exit if no version can be found
+               exit 1
             else
               echo "Successfully fetched latest tag from /tags endpoint: $LATEST_VERSION"
             fi
@@ -55,13 +55,7 @@ jobs:
           
           echo "Latest upstream version: $LATEST_UPSTREAM"
           echo "Current local version: $CURRENT_LOCAL"
-
-          # The fsaintjacques/semver-tool handles 'v' prefix correctly.
           
-          # semver compare <version1> <version2>
-          # Returns 1 if version1 > version2
-          # Returns 0 if version1 == version2
-          # Returns -1 if version1 < version2
           COMPARISON_RESULT=$(./semver compare "$LATEST_UPSTREAM" "$CURRENT_LOCAL")
           
           echo "Comparison result: $COMPARISON_RESULT (1 means new version is available from upstream)"
